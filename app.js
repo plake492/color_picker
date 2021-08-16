@@ -270,6 +270,13 @@ document.addEventListener('touchmove', ({ changedTouches }) => {
 const random = () => {
   hsl.hue1.value = Math.floor(Math.random() * 360)
   hsl.hue2.value = Math.floor(Math.random() * 360)
+  hsl.sat1.value = 100
+  hsl.sat2.value = 100
+  hsl.brightness1.value = 50
+  hsl.brightness2.value = 50
+  hsl.anchor1.value = 0
+  hsl.anchor2.value = 100
+  hsl.deg.value = Math.floor(Math.random() * 360)
   updateBG()
   displaySliders()
 }
