@@ -197,8 +197,10 @@ document.addEventListener('change', ({ target }) => {
 const checkExitSpecial = () => {
   touchExit++
   if (touchExit >= 2) {
-    stopSpecial()
-    touchExit = 0
+    window.setTimeout(() => {
+      stopSpecial()
+      touchExit = 0
+    }, 300)
   }
   // Use timeout to validate double click on mobile device
   window.setTimeout(() => {
