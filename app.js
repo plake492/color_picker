@@ -12,6 +12,8 @@ let displayHSL
 let toggleCssDispaly = false
 let special = false
 let screenWidth = window.innerWidth
+let isTouch = false
+let touchExit = 0
 
 // TODO add veritcal contrils for brightness and saturation
 // let screenHeight = window.innerHeight
@@ -191,42 +193,71 @@ document.addEventListener('change', ({ target }) => {
 //* ==================================================
 // ****************** GLOABL CLICK *******************
 //* ==================================================
-document.addEventListener('touchmove', ({ target }) =>
-  handleClickAndTouchEvent(target)
-)
 
-document.addEventListener('click', ({ target }) =>
-  handleClickAndTouchEvent(target)
-)
+const checkExitSpecial = () => {
+  touchExit++
+  if (touchExit >= 2) {
+    stopSpecial()
+    touchExit = 0
+  }
+  // Use timeout to validate double click on mobile device
+  window.setTimeout(() => {
+    touchExit = 0
+  }, 300)
+}
+
+document.addEventListener('touchstart', ({ target }) => {
+  // Set flag to detarmine if touch based env
+  isTouch = true
+  if (special) {
+    checkExitSpecial()
+  } else if (target.tagName === 'BUTTON') {
+    handleClickAndTouchEvent(target)
+  }
+})
+
+document.addEventListener('click', ({ target }) => {
+  if (!isTouch) {
+    if (special) {
+      stopSpecial()
+    } else if (target.tagName === 'BUTTON') {
+      handleClickAndTouchEvent(target)
+    }
+  }
+})
 
 const handleClickAndTouchEvent = target => {
-  if (special) {
-    special = false
-    stopSpecial()
-  } else if (target.tagName === 'BUTTON') {
-    // Use html ID's to trigger funcs from funcs Obj
-    funcs[target.id]()
-    if (target.id === 'toggleStartStop' || target.id === 'displayCss') {
-      target.classList.value
-        ? target.classList.remove('btn_active')
-        : target.classList.add('btn_active')
-    }
+  // Use html ID's to trigger funcs from funcs Obj
+  funcs[target.id]()
+  if (target.id === 'toggleStartStop' || target.id === 'displayCss') {
+    target.classList.value
+      ? target.classList.remove('btn_active')
+      : target.classList.add('btn_active')
   }
 }
 //* ==================================================
 
-document.addEventListener('mousemove', e => {
+const handleSpecialFeature = positionX => {
   if (special) {
     screenWidth = window.innerWidth
     // TODO add veritcal contrils for brightness and saturation
     // screenHeight = window.innerHeight
     const granularX = screenWidth / 360
-    const updateHue = Math.floor(e.clientX / granularX)
+    const updateHue = Math.floor(positionX / granularX)
     hsl[!hueSwitcher ? 'hue1' : 'hue2'].value = updateHue
     updateBG()
     if (!toggleCssDispaly) hueDisplay.textContent = 'Hue: ' + updateHue
     else displayText.textContent = displayHSL
   }
+}
+document.addEventListener('mousemove', e => {
+  if (!isTouch) {
+    handleSpecialFeature(e.clientX)
+  }
+})
+
+document.addEventListener('touchmove', ({ changedTouches }) => {
+  handleSpecialFeature(changedTouches[0].clientX)
 })
 
 // Define button click funcs
@@ -268,7 +299,9 @@ const startSpecial = toggle => {
   special = !special
   if (special) {
     body.classList.add('curser_special')
-    headerDisplay.textContent = 'Click anywhere to stop touch change'
+    headerDisplay.textContent = isTouch
+      ? 'Double Tab Anywhere to stop touch change'
+      : 'Click anywhere to stop touch change'
     headerDisplay.classList.add('animate_header')
     main.classList.add('muted')
     handleDisableEls(btnList)
@@ -280,6 +313,7 @@ const startSpecial = toggle => {
 }
 
 const stopSpecial = () => {
+  special = false
   displaySliders()
   body.classList.remove('curser_special')
   main.classList.remove('muted')
