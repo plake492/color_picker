@@ -21,7 +21,7 @@ let hueSwitcher = 0
 let running = false
 
 // Construct the variabls for different inputs
-const hsl = {
+const hsl = JSON.parse(window.localStorage.getItem('hslSettings')) || {
   hue1: {
     min: 0,
     max: 360,
@@ -188,6 +188,7 @@ document.addEventListener('change', ({ target }) => {
     displayText.textContent = displayHSL
   }
   displaySliders()
+  storeSettings()
 })
 
 //* ==================================================
@@ -216,6 +217,7 @@ document.addEventListener('touchstart', ({ target }) => {
   } else if (target.tagName === 'BUTTON') {
     handleClickAndTouchEvent(target)
   }
+  storeSettings()
 })
 
 document.addEventListener('click', ({ target }) => {
@@ -226,6 +228,7 @@ document.addEventListener('click', ({ target }) => {
       handleClickAndTouchEvent(target)
     }
   }
+  storeSettings()
 })
 
 const handleClickAndTouchEvent = target => {
@@ -346,3 +349,9 @@ const init = () => {
 }
 
 init()
+
+const storeSettings = () => {
+  window.localStorage.clear('hslSettings')
+  window.localStorage.setItem('hslSettings', JSON.stringify(hsl))
+  console.log('settings saved')
+}
